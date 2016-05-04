@@ -1,0 +1,91 @@
+<resources>
+    <string name="app_name">UniSale</string>
+    <string name="action_messages">Messages</string>
+    <!-- Strings for main login screen-->
+    <string name="app_description">
+        The app where college students or faculty can sell books, furniture, electronics, or ANYTHING!
+        No personal information required besides school name;
+        the user can give information out if they want.
+    </string>
+    <string name="request_login">Please login:</string>
+
+    <!-- Strings for NewUserActivity-->
+    <string name="title_activity_new_user">New User</string>
+    <string-array name="college_uni_names">
+        <item>University of Scranton</item>
+        <item>Marywood University</item>
+        <item>Keystone College</item>
+        <item>Kings College</item>
+    </string-array>
+
+    <!-- Strings for HomeScreen -->
+    <string name="title_activity_home_screen">Home</string>
+    <string name="title_activity_home_screen_drawer">HomeScreenDrawer</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <!-- Filter Arrays -->
+    <string name="filter_string_none">None</string>
+    <string name="price_filter_string_h2l">High to Low</string>
+    <string name="price_filter_string_l2h">Low to High</string>
+
+    <string-array name="price_filter_array">
+        <item>@string/filter_string_none</item>
+        <item>@string/price_filter_string_h2l</item>
+        <item>@string/price_filter_string_l2h</item>
+    </string-array>
+
+    <string name="category_filter_string_books">Books</string>
+    <string name="category_filter_string_furn">Furniture</string>
+    <string name="category_filter_string_elec">Electronics</string>
+    <string name="category_filter_string_hg">Home Goods</string>
+    <string name="category_filter_string_misc">Miscellaneous</string>
+
+    <string-array name="category_filter_array">
+        <item>@string/filter_string_none</item>
+        <item>@string/category_filter_string_books</item>
+        <item>@string/category_filter_string_elec</item>
+        <item>@string/category_filter_string_furn</item>
+        <item>@string/category_filter_string_hg</item>
+        <item>@string/category_filter_string_misc</item>
+    </string-array>
+
+    <string name="search_label">Search Bar</string>
+    <string name="search_hint">Search Listings</string>
+
+    <!-- EXAMPLE STRING STUFF-->
+    <string-array name="example_titles">
+        <item>Couch</item>
+        <item>Science Textbook</item>
+        <item>Ipod</item>
+        <item>Literature Book</item>
+        <item>Tablet</item>
+        <item>Silverware</item>
+    </string-array>
+
+    <string-array name="example_prices">
+        <item>$20.00</item>
+        <item>$10.00</item>
+        <item>$5.00</item>
+        <item>$0.00</item>
+        <item>$20.00</item>
+        <item>$1.00</item>
+    </string-array>
+
+    <string-array name="example_conditions">
+        <item>POOR</item>
+        <item>GOOD</item>
+        <item>OKAY</item>
+        <item>PERFECT</item>
+        <item>GREAT</item>
+        <item>POOR</item>
+    </string-array>
+
+    <!-- New Listing strings-->
+    <string name="myAlphaNumeric">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
+
+
+</resources>

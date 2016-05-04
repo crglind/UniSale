@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:clickable="true">
+        <item
+            android:id="@+id/my_listings"
+            android:icon="@drawable/my_listing_icon"
+            android:title="My Listings" />
+        <item
+            android:id="@+id/completed_listings"
+            android:icon="@drawable/complete_icon"
+            android:title="Completed Listings" />
+        <item
+            android:id="@+id/new_listing"
+            android:icon="@drawable/new_listing_icon"
+            android:title="New Listing" />
+    </group>
+
+</menu>

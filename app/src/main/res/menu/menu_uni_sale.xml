@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="edu.scranton.lind.unisale.UniSale_main">
+    <!--<item
+        android:id="@+id/search_icon"
+        android:actionViewClass="android.widget.SearchView"
+        android:icon="@drawable/search_icon"
+        android:title="@string/search_label"
+        app:showAsAction="ifRoom|collapseActionView"/>-->
+    <item
+        android:id="@+id/filter_icon"
+        android:icon="@drawable/filter_icon"
+        android:title="Filters"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/messages_icon"
+        android:icon="@drawable/messages_icon"
+        android:title="Messages"
+        app:showAsAction="always"/>
+</menu>

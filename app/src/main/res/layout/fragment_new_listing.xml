@@ -1,0 +1,67 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewListing">
+
+    <EditText
+        android:id="@+id/new_list_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter the Listing Title"
+        android:textSize="30dp"/>
+
+    <EditText
+        android:id="@+id/new_list_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Description"
+        android:textSize="15dp"
+        android:layout_below="@+id/new_list_title"/>
+
+    <TextView
+        android:id="@+id/new_list_price_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Price:"
+        android:textSize="15dp"
+        android:layout_below="@id/new_list_description" />
+
+    <TextView
+        android:id="@+id/new_list_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="$0.00"
+        android:textSize="15dp"
+        android:layout_toRightOf="@+id/new_list_price_tv"
+        android:layout_below="@id/new_list_description"/>
+
+    <Button
+        android:id="@+id/price_button"
+        style="@style/ButtonStyle"
+        android:text="CHANGE PRICE"
+        android:layout_below="@+id/new_list_description"
+        android:layout_toRightOf="@+id/new_list_price"/>
+
+    <TextView
+        android:id="@+id/new_list_category_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose Category:"
+        android:textSize="15dp"
+        android:layout_below="@+id/new_list_price_tv"/>
+
+    <Spinner
+        android:id="@+id/new_list_category_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"/>
+
+    <Button
+        android:id="@+id/post_listing_button"
+        style="@style/ButtonStyle"
+        android:layout_alignParentBottom="true"
+        android:text="POST LISTING"
+        android:layout_marginBottom="10dp"/>
+
+</RelativeLayout>
