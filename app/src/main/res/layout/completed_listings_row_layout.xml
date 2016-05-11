@@ -15,7 +15,7 @@
         android:textSize="35dp"
         android:textColor="#000"
         android:textStyle="bold"/>
-        <!--android:layout_toRightOf="@+id/thumbnail_image"/>-->
+    <!--android:layout_toRightOf="@+id/thumbnail_image"/>-->
     <TextView
         android:id="@+id/listing_description"
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/listing_description"
         android:textSize="20dp"/>
-        <!--android:layout_toRightOf="@+id/thumbnail_image" />-->
+    <!--android:layout_toRightOf="@+id/thumbnail_image" />-->
     <TextView
         android:id="@+id/listing_condition"
         android:layout_width="wrap_content"
@@ -46,20 +46,5 @@
         android:layout_toRightOf="@+id/listing_condition"
         android:layout_below="@+id/listing_description"
         android:layout_marginLeft="20dp"/>
-    <Button
-        android:id="@+id/interested_button"
-        style="@style/ButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_below="@id/listing_price"
-        android:layout_toLeftOf="@+id/message_button"
-        android:layout_marginRight="20dp"
-        android:text="INTERESTED"/>
-    <Button
-        android:id="@+id/message_button"
-        style="@style/ButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_below="@+id/listing_price"
-        android:text="MESSAGE"
-        android:layout_alignParentRight="true"/>
 
 </RelativeLayout>

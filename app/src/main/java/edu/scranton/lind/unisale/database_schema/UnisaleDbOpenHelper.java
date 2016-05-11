@@ -14,7 +14,7 @@ import edu.scranton.lind.unisale.database_schema.UnisaleDbContract.Converstions;
 
 public class UnisaleDbOpenHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "unisale.db";
-    public static final int DATABASE_VERSION = 7;
+    public static final int DATABASE_VERSION = 8;
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -100,7 +100,7 @@ public class UnisaleDbOpenHelper extends SQLiteOpenHelper {
         //Set example listings
         String[] items = {"Couch", "Science Textbook", "Ipod",
                 "Literature Book", "Tablet" ,"Silverware"};
-        String[] prices = {"$20.00", "$15.00", "$10.00", "5.00", "$0.00", "$3.50"};
+        double[] prices = {20.00, 15.00, 10.00, 5.00, 0.00, 3.50};
         String[] condition = {"POOR", "GOOD", "OKAY", "PERFECT", "GREAT", "POOR"};
         String[] category = {"Furniture", "Books", "Electronics", "Books", "Electronics", "Home Goods"};
         int[] school = {0, 0, 1, 2, 0, 3};

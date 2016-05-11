@@ -5,24 +5,22 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import edu.scranton.lind.unisale.database_schema.UnisaleDbContract.Listings;
 
-public class ListingFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener{
+
+public class CompletedListings extends ListFragment {
 
     public interface DbProvider{SQLiteDatabase getReadableDb();}
 
-    public static final String USER = "edu.scranton.lind.listingfragment.USER";
-    public static final String SCHOOL = "edu.scranton.lind.listingfragment.SCHOOl";
+    public static final String USER = "edu.scranton.lind.completedlisting.USER";
 
-    private DbProvider provider;
     private SQLiteDatabase mDatabase;
     private int mUID;
-    private int mSchoolID;
+    private DbProvider provider;
+    private CompletedListingAdapter mAdapter;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
@@ -30,9 +28,8 @@ public class ListingFragment extends ListFragment implements SwipeRefreshLayout.
         mDatabase = provider.getReadableDb();
         Bundle bundle = getArguments();
         mUID = bundle.getInt(USER);
-        mSchoolID = bundle.getInt(SCHOOL);
-        ListingAsyncTask la = new ListingAsyncTask(this, mDatabase);
-        la.execute(mUID, mSchoolID);
+        CompletedListingAsyncTask ca = new CompletedListingAsyncTask(this, mDatabase);
+        ca.execute(mUID);
     }
 
     @Override
@@ -42,19 +39,14 @@ public class ListingFragment extends ListFragment implements SwipeRefreshLayout.
     }
 
     @Override
-    public void onDestroy(){
-        super.onDestroy();
-        mDatabase = null;
+    public void onDetach() {
+        super.onDetach();
+        provider = null;
     }
 
-    @Override
-    public void onRefresh(){
-
+    public void setListings(ArrayList listings){
+        mAdapter = new
+                CompletedListingAdapter(getActivity().getBaseContext(), listings);
+        setListAdapter(mAdapter);
     }
-
-    public void setListings(ArrayList<Listing> listings){
-        ListingAdapter adapter = new ListingAdapter(getActivity().getBaseContext(), listings);
-        setListAdapter(adapter);
-    }
-
 }

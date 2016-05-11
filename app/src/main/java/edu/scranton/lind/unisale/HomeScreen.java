@@ -1,11 +1,10 @@
 package edu.scranton.lind.unisale;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -18,27 +17,41 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Stack;
+
+import edu.scranton.lind.unisale.database_schema.UnisaleDbContract.Listings;
 import edu.scranton.lind.unisale.database_schema.UnisaleDbOpenHelper;
 
 public class HomeScreen extends AppCompatActivity
-    implements ListingFragment.OnListingSelectedListener,
-    NavigationView.OnNavigationItemSelectedListener,
+    implements NavigationView.OnNavigationItemSelectedListener,
     ListingFragment.DbProvider,
-    MyListingsFragment.DbProvider{
+    MyListingsFragment.DbProvider,
+    NewListing.DbProvider,
+    CompletedListings.DbProvider {
+
+    private int mUID;
+    private int mSchoolID;
 
     private SQLiteDatabase mReadableDb;
     private SQLiteDatabase mWritableDb;
     private RetainedDatabase mRetainedDatabase;
+
+    private String mCurrentTitle;
+    private Stack<String> mTitleList;
+    private RetainedTitles mRetainedTitles;
+
     private String mListingTag = "LISTING";
     private String mMessageSelectTag = "MSGSELECT";
     private String mNewListingTag = "NEWLISTING";
     private String mMyListingTag = "MYLISTING";
-    private int mUID;
-    private int mSchoolID;
+    private String mCompletedTag = "COMPLETED";
     private String mHomeTitle = "Home";
     private String mMessageTitle = "Message";
     private String mNewListingTitle = "New Listing";
     private String mMyListingTitle = "My Listings";
+    private String mCompletedTitle = " My Completed transactions";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,17 +59,8 @@ public class HomeScreen extends AppCompatActivity
         setContentView(R.layout.activity_home_screen_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(mHomeTitle);
-        Intent inputIntent = getIntent();
-        if(inputIntent.hasExtra(UniSale_main.ARG_USER_ID_MAIN)){
-            mUID = inputIntent.getIntExtra(UniSale_main.ARG_USER_ID_MAIN, -1);
-            mSchoolID = inputIntent.getIntExtra(UniSale_main.ARG_SCHOOL_ID, -1);
-        }
-        else {
-            mUID = inputIntent.getIntExtra(NewUserActivity.ARG_USER_ID_NEW, -1);
-            mSchoolID = inputIntent.getIntExtra(NewUserActivity.ARG_SCHOOL_ID, -1);
-        }
-        if(mUID == -1 || mSchoolID == -1) Toast.makeText(HomeScreen.this, "ERROR", Toast.LENGTH_SHORT).show();
+        setupRetainedTitles();
+        getIntentArgs();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -64,19 +68,7 @@ public class HomeScreen extends AppCompatActivity
         toggle.syncState();
         NavigationView navView = (NavigationView)findViewById(R.id.nav_view);
         navView.setNavigationItemSelectedListener(this);
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction rft = getSupportFragmentManager().beginTransaction();
-        mRetainedDatabase = (RetainedDatabase) fm.findFragmentByTag("retained_database");
-        if(mRetainedDatabase == null) {
-            UnisaleDbOpenHelper dbHelper = new UnisaleDbOpenHelper(this);
-            mReadableDb = dbHelper.getReadableDatabase();
-            mWritableDb = dbHelper.getWritableDatabase();
-            mRetainedDatabase = new RetainedDatabase();
-            rft.add(mRetainedDatabase, "retained_database").commit();
-            mRetainedDatabase.setDatabase(mReadableDb, mWritableDb);
-        }
-        mReadableDb = mRetainedDatabase.getReadableDatabaseFromRetained();
-        mWritableDb = mRetainedDatabase.getWritableDatabaseFromRetained();
+        setupRetainedDatabase();
         ListingFragment listing = new ListingFragment();
         Bundle args = new Bundle();
         args.putInt(ListingFragment.USER, mUID);
@@ -119,16 +111,18 @@ public class HomeScreen extends AppCompatActivity
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         switch (menuItem.getItemId()){
             case R.id.messages_icon:
-                //Toast.makeText(HomeScreen.this, "Messages", Toast.LENGTH_SHORT).show();
+                mTitleList.push(mCurrentTitle);
+                mRetainedTitles.setTitlesStack(mTitleList);
+                getSupportActionBar().setTitle(mMessageTitle);
+                mCurrentTitle = mMessageTitle;
+                mRetainedTitles.setCurrentTitle(mCurrentTitle);
                 if(findViewById(R.id.small_container) != null){
-                    getSupportActionBar().setTitle(mMessageTitle);
                     MessageSelectionFragment msgSelect = new MessageSelectionFragment();
                     ft.replace(R.id.small_container, msgSelect, mMessageSelectTag);
                     ft.addToBackStack(mMessageSelectTag);
                     ft.commit();
                 }
                 else{
-                    getSupportActionBar().setTitle(mMessageTitle);
                     MessageSelectionFragment msgSelect = new MessageSelectionFragment();
                     ft.replace(R.id.large_container_normal, msgSelect, mMessageSelectTag);
                     ft.addToBackStack(mMessageSelectTag);
@@ -149,28 +143,21 @@ public class HomeScreen extends AppCompatActivity
         return true;
     }
 
-    public void onListingChosen(int position, int listingId, int listNum, String title){
-        Bundle args = new Bundle();
-        args.putInt(InterestedDialog.ARG_ID, listingId);
-        args.putInt(InterestedDialog.ARG_LISTNUM, listNum);
-        args.putString(InterestedDialog.ARG_TITLE, title);
-        InterestedDialog dialog = new InterestedDialog();
-        dialog.setArguments(args);
-        dialog.show(getFragmentManager(), "interested_shown");
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
+        mTitleList.push(mCurrentTitle);
+        mRetainedTitles.setTitlesStack(mTitleList);
         switch (item.getItemId()){
             case R.id.my_listings:
-                Bundle args = new Bundle();
-                args.putInt(MyListingsFragment.USER, mUID);
+                Bundle myListArgs = new Bundle();
+                myListArgs.putInt(MyListingsFragment.USER, mUID);
                 MyListingsFragment myList = new MyListingsFragment();
-                myList.setArguments(args);
+                myList.setArguments(myListArgs);
                 getSupportActionBar().setTitle(mMyListingTitle);
+                mCurrentTitle = mMyListingTitle;
                 if(findViewById(R.id.small_container) != null){
                     ft.replace(R.id.small_container, myList, mMyListingTag);
                     ft.addToBackStack(mMyListingTag);
@@ -183,22 +170,44 @@ public class HomeScreen extends AppCompatActivity
                 }
                 break;
             case R.id.completed_listings:
+                CompletedListings comList = new CompletedListings();
+                Bundle comListArgs = new Bundle();
+                comListArgs.putInt(CompletedListings.USER, mUID);
+                comList.setArguments(comListArgs);
+                getSupportActionBar().setTitle(mCompletedTitle);
+                mCurrentTitle = mCompletedTitle;
+                if (findViewById(R.id.small_container) != null){
+                    ft.replace(R.id.small_container, comList, mCompletedTag);
+                    ft.addToBackStack(mCompletedTag);
+                    ft.commit();
+                }
+                else{
+                    ft.replace(R.id.large_container_normal, comList, mCompletedTag);
+                    ft.addToBackStack(mCompletedTag);
+                    ft.commit();
+                }
                 break;
             case R.id.new_listing:
                 NewListing newList = new NewListing();
+                Bundle newListArgs = new Bundle();
+                newListArgs.putInt(NewListing.USER, mUID);
+                newListArgs.putInt(NewListing.SCHOOL, mSchoolID);
+                newList.setArguments(newListArgs);
                 getSupportActionBar().setTitle(mNewListingTitle);
+                mCurrentTitle = mNewListingTitle;
                 if (findViewById(R.id.small_container) != null){
                     ft.replace(R.id.small_container, newList, mNewListingTag);
-                    ft.addToBackStack(mListingTag);
+                    ft.addToBackStack(mNewListingTag);
                     ft.commit();
                 }
                 else{
                     ft.replace(R.id.large_container_normal, newList, mNewListingTag);
-                    ft.addToBackStack(mListingTag);
+                    ft.addToBackStack(mNewListingTag);
                     ft.commit();
                 }
                 break;
         }
+        mRetainedTitles.setCurrentTitle(mCurrentTitle);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -211,26 +220,73 @@ public class HomeScreen extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         }else {
             super.onBackPressed();
-            int fragCount = getSupportFragmentManager().getBackStackEntryCount();
-            if (fragCount != 0) {
-                String lastFrag =
-                        getSupportFragmentManager().getBackStackEntryAt(fragCount - 1).getName();
-                if (lastFrag.equals(mMessageSelectTag)) {
-                    getSupportActionBar().setTitle(mHomeTitle);
-                } else if (lastFrag.equals(mNewListingTag)) {
-                    getSupportActionBar().setTitle(mHomeTitle);
-                }
+            if(!mTitleList.isEmpty()){
+                String oldTitle = mTitleList.pop();
+                getSupportActionBar().setTitle(oldTitle);
+                mCurrentTitle = oldTitle;
             }
             ListingFragment homeFrag =
                     (ListingFragment) getSupportFragmentManager().findFragmentByTag(mListingTag);
             if (homeFrag.isVisible()) {
                 getSupportActionBar().setTitle(mHomeTitle);
             }
+            mRetainedTitles.setTitlesStack(mTitleList);
+            mRetainedTitles.setCurrentTitle(mCurrentTitle);
         }
     }
 
-    public SQLiteDatabase getReadableDb() {
-        return mReadableDb;
+    public void changePriceClicked(){
+        //CHANGE THIS FOR SMALL DEVICES
+        Toast.makeText(HomeScreen.this, "Clicked", Toast.LENGTH_SHORT).show();
     }
 
+    public SQLiteDatabase getReadableDb() {return mReadableDb;}
+    public SQLiteDatabase getWritableDb() {return mWritableDb;}
+
+    private void setupRetainedTitles(){
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        mRetainedTitles = (RetainedTitles) fm.findFragmentByTag("retained_titles");
+        if(mRetainedTitles == null){
+            getSupportActionBar().setTitle(mHomeTitle);
+            mCurrentTitle = mHomeTitle;
+            mTitleList = new Stack<>();
+            mRetainedTitles = new RetainedTitles();
+            ft.add(mRetainedTitles, "retained_titles").commit();
+            mRetainedTitles.setTitlesStack(mTitleList);
+            mRetainedTitles.setCurrentTitle(mCurrentTitle);
+        }
+        mTitleList = (Stack)mRetainedTitles.getTitlesStack().clone();
+        mCurrentTitle = mRetainedTitles.getCurrentTitle();
+        getSupportActionBar().setTitle(mCurrentTitle);
+    }
+
+    private void getIntentArgs(){
+        Intent inputIntent = getIntent();
+        if(inputIntent.hasExtra(UniSale_main.ARG_USER_ID_MAIN)){
+            mUID = inputIntent.getIntExtra(UniSale_main.ARG_USER_ID_MAIN, -1);
+            mSchoolID = inputIntent.getIntExtra(UniSale_main.ARG_SCHOOL_ID, -1);
+        }
+        else {
+            mUID = inputIntent.getIntExtra(NewUserActivity.ARG_USER_ID_NEW, -1);
+            mSchoolID = inputIntent.getIntExtra(NewUserActivity.ARG_SCHOOL_ID, -1);
+        }
+        if(mUID == -1 || mSchoolID == -1) Toast.makeText(HomeScreen.this, "ERROR", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupRetainedDatabase(){
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        mRetainedDatabase = (RetainedDatabase) fm.findFragmentByTag("retained_database");
+        if(mRetainedDatabase == null) {
+            UnisaleDbOpenHelper dbHelper = new UnisaleDbOpenHelper(this);
+            mReadableDb = dbHelper.getReadableDatabase();
+            mWritableDb = dbHelper.getWritableDatabase();
+            mRetainedDatabase = new RetainedDatabase();
+            ft.add(mRetainedDatabase, "retained_database").commit();
+            mRetainedDatabase.setDatabase(mReadableDb, mWritableDb);
+        }
+        mReadableDb = mRetainedDatabase.getReadableDatabaseFromRetained();
+        mWritableDb = mRetainedDatabase.getWritableDatabaseFromRetained();
+    }
 }

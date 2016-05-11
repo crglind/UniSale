@@ -10,8 +10,18 @@
         android:layout_height="wrap_content"
         android:hint="Enter the Listing Title"
         android:textSize="30dp"
+        android:maxLength="25"
         android:inputType="text"
         android:digits="@string/myAlphaNumeric"/>
+
+    <TextView
+        android:id="@+id/char_notice_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*** MAX CHARACTERS: 25 ***"
+        android:textSize="10dp"
+        android:layout_below="@+id/new_list_title"
+        android:layout_alignParentRight="true"/>
 
     <EditText
         android:id="@+id/new_list_description"
@@ -21,14 +31,24 @@
         android:textSize="25dp"
         android:inputType="text"
         android:digits="@string/myAlphaNumeric"
-        android:layout_below="@+id/new_list_title"/>
+        android:layout_below="@+id/char_notice_title"/>
+
+    <TextView
+        android:id="@+id/char_notice_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*** MAX CHARACTERS: 100 ***"
+        android:textSize="10dp"
+        android:layout_below="@+id/new_list_description"
+        android:layout_alignParentRight="true"/>
 
     <RelativeLayout
         android:id="@+id/new_list_price_block"
         android:background="@drawable/text_view_border"
-        android:layout_below="@+id/new_list_description"
+        android:layout_below="@+id/char_notice_description"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
         <TextView
             android:id="@+id/new_list_price_tv"
             android:layout_width="wrap_content"
@@ -169,11 +189,34 @@
     </RelativeLayout>
 
     <TableRow
-        android:id="@+id/new_list_category_row"
+        android:id="@+id/new_list_condition_row"
         android:layout_below="@+id/new_list_price_block"
         android:background="@drawable/text_view_border"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:id="@+id/new_list_condition_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Condition:"
+            android:textSize="25dp"/>
+
+        <Spinner
+            android:id="@+id/new_list_condition_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center" />
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/new_list_category_row"
+        android:layout_below="@+id/new_list_condition_row"
+        android:background="@drawable/text_view_border"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
         <TextView
             android:id="@+id/new_list_category_tv"
             android:layout_width="wrap_content"

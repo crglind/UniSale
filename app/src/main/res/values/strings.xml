@@ -75,17 +75,17 @@
         <item>$1.00</item>
     </string-array>
 
-    <string-array name="example_conditions">
+    <string-array name="conditions_array">
+        <item>CHOOSE</item>
         <item>POOR</item>
-        <item>GOOD</item>
         <item>OKAY</item>
-        <item>PERFECT</item>
+        <item>GOOD</item>
         <item>GREAT</item>
-        <item>POOR</item>
+        <item>PERFECT</item>
     </string-array>
 
     <!-- New Listing strings-->
-    <string name="myAlphaNumeric">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
+    <string name="myAlphaNumeric">abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
 
 
 </resources>

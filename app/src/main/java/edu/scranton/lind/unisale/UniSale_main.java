@@ -76,9 +76,7 @@ public class UniSale_main extends AppCompatActivity {
             return;
         }
         mUID = uCursor.getInt(0);
-        Toast.makeText(UniSale_main.this, Integer.toString(mUID), Toast.LENGTH_SHORT).show();
         mSchoolID = uCursor.getInt(3);
-        Toast.makeText(UniSale_main.this, Integer.toString(mSchoolID), Toast.LENGTH_SHORT).show();
         uCursor.close();
         Intent intent = new Intent(this, HomeScreen.class);
         intent.putExtra(ARG_USER_ID_MAIN, mUID);
