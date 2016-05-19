@@ -28,7 +28,7 @@ public class CompletedListings extends ListFragment {
         mDatabase = provider.getReadableDb();
         Bundle bundle = getArguments();
         mUID = bundle.getInt(USER);
-        CompletedListingAsyncTask ca = new CompletedListingAsyncTask(this, mDatabase);
+        CompletedListingAsyncTask ca = new CompletedListingAsyncTask(this);
         ca.execute(mUID);
     }
 
@@ -45,8 +45,11 @@ public class CompletedListings extends ListFragment {
     }
 
     public void setListings(ArrayList listings){
+        String layout;
+        if(getActivity().findViewById(R.id.small_container) != null) layout = "small";
+        else layout = "large";
         mAdapter = new
-                CompletedListingAdapter(getActivity().getBaseContext(), listings);
+                CompletedListingAdapter(getActivity().getBaseContext(), listings, layout);
         setListAdapter(mAdapter);
     }
 }

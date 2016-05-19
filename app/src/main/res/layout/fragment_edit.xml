@@ -129,12 +129,13 @@
 
 
         <Button
-            android:id="@+id/post_listing_button"
+            android:id="@+id/edit_listing_button"
             style="@style/ButtonStyle"
-            android:layout_alignParentBottom="true"
             android:layout_below="@id/new_list_category_row"
-            android:text="POST LISTING"
+            android:layout_alignParentBottom="true"
+            android:text="EDIT LISTING"
             android:layout_marginBottom="10dp"/>
 
     </RelativeLayout>
+
 </ScrollView>

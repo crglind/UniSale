@@ -23,6 +23,7 @@ public class NewUserActivity extends AppCompatActivity {
 
     public static final String ARG_USER_ID_NEW = "edu.scranton.lind.unisale.newuser.ARG_USER_ID";
     public static final String ARG_SCHOOL_ID = "edu.scranton.lind.unisale.newuser.ARG_SCHOOL_ID";
+    public static final String ARG_USERNAME = "edu.scranton.lind.unisale.newuser.ARG_USERNAME";
 
     private SQLiteDatabase mReadableDb;
     private SQLiteDatabase mWritableDb;
@@ -74,18 +75,6 @@ public class NewUserActivity extends AppCompatActivity {
         String passwordCheck = mPasswordCheck.getText().toString();
         String usersCollege = mCollege.getText().toString();
         if(!checkEntries(proposedUsername, password, passwordCheck, usersCollege))return;
-        //Check proposedUsername against the database
-        String[] usernameColumn = {User.USERNAME};
-        String selection = User.USERNAME + " =? ";
-        String[] selectionArgs = {proposedUsername};
-        Cursor userCursor = mReadableDb.query(User.TABLE_NAME, usernameColumn, selection,
-                selectionArgs, null, null, null);
-        if(!userCursor.isAfterLast()){
-            Toast.makeText(NewUserActivity.this, "Username Taken", Toast.LENGTH_SHORT).show();
-            userCursor.close();
-            return;
-        }
-        userCursor.close();
         for(int i = 0; i < mSchoolArray.size(); i++){
             if(mSchoolArray.get(i).equals(usersCollege)){
                 mSchoolID = i;
@@ -97,6 +86,22 @@ public class NewUserActivity extends AppCompatActivity {
                 return;
             }
         }
+        //async task variables in order of username, password, collegeid
+        RegisterUserAsyncTask ra = new RegisterUserAsyncTask(this);
+        ra.execute(proposedUsername, password, String.valueOf(mSchoolID));
+        //Check proposedUsername against the database
+        /*String[] usernameColumn = {User.USERNAME};
+        String selection = User.USERNAME + " =? ";
+        String[] selectionArgs = {proposedUsername};
+        Cursor userCursor = mReadableDb.query(User.TABLE_NAME, usernameColumn, selection,
+                selectionArgs, null, null, null);
+        if(!userCursor.isAfterLast()){
+            Toast.makeText(NewUserActivity.this, "Username Taken", Toast.LENGTH_SHORT).show();
+            userCursor.close();
+            return;
+        }
+        userCursor.close();
+
         //Put everything in the database and go to the next main screen activity
         ContentValues newUser = new ContentValues();
         newUser.put(User.USERNAME, proposedUsername);
@@ -110,7 +115,27 @@ public class NewUserActivity extends AppCompatActivity {
         Intent intent = new Intent(this, HomeScreen.class);
         intent.putExtra(ARG_USER_ID_NEW, mUID);
         intent.putExtra(ARG_SCHOOL_ID, mSchoolID);
+        intent.putExtra(ARG_USERNAME, proposedUsername);
+        startActivity(intent);*/
+    }
+
+    public void success(int response){
+        Toast.makeText(NewUserActivity.this,
+                mUsername.getText().toString() + " - CREATED!", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, HomeScreen.class);
+        intent.putExtra(ARG_USER_ID_NEW, response);
+        intent.putExtra(ARG_SCHOOL_ID, mSchoolID);
+        intent.putExtra(ARG_USERNAME, mUsername.getText().toString());
         startActivity(intent);
+    }
+
+    public void usernameTaken(){
+        Toast.makeText(NewUserActivity.this, "Username Taken!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void failedToCreate(){
+        Toast.makeText(NewUserActivity.this,
+                "Network Error: Failed to Create", Toast.LENGTH_SHORT).show();
     }
 
     private boolean checkEntries

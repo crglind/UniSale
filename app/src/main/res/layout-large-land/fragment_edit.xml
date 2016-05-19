@@ -248,10 +248,10 @@
 
 
             <Button
-                android:id="@+id/post_listing_button"
+                android:id="@+id/edit_listing_button"
                 style="@style/ButtonStyle"
                 android:layout_alignParentBottom="true"
-                android:text="POST LISTING"
+                android:text="EDIT LISTING"
                 android:layout_marginBottom="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"/>

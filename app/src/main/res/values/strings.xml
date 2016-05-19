@@ -29,6 +29,7 @@
 
     <!-- Filter Arrays -->
     <string name="filter_string_none">None</string>
+    <string name="string_choose">CHOOSE</string>
     <string name="price_filter_string_h2l">High to Low</string>
     <string name="price_filter_string_l2h">Low to High</string>
 
@@ -84,8 +85,20 @@
         <item>PERFECT</item>
     </string-array>
 
+    <string-array name="category_array">
+        <item>@string/string_choose</item>
+        <item>@string/category_filter_string_books</item>
+        <item>@string/category_filter_string_elec</item>
+        <item>@string/category_filter_string_furn</item>
+        <item>@string/category_filter_string_hg</item>
+        <item>@string/category_filter_string_misc</item>
+    </string-array>
+
     <!-- New Listing strings-->
     <string name="myAlphaNumeric">abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

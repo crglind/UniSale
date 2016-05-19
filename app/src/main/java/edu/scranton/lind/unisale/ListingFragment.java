@@ -31,7 +31,7 @@ public class ListingFragment extends ListFragment implements SwipeRefreshLayout.
         Bundle bundle = getArguments();
         mUID = bundle.getInt(USER);
         mSchoolID = bundle.getInt(SCHOOL);
-        ListingAsyncTask la = new ListingAsyncTask(this, mDatabase);
+        ListingAsyncTask la = new ListingAsyncTask(this);
         la.execute(mUID, mSchoolID);
     }
 
@@ -53,7 +53,11 @@ public class ListingFragment extends ListFragment implements SwipeRefreshLayout.
     }
 
     public void setListings(ArrayList<Listing> listings){
-        ListingAdapter adapter = new ListingAdapter(getActivity().getBaseContext(), listings);
+        String layout;
+        if(getActivity().findViewById(R.id.small_container) != null) layout = "small";
+        else layout = "large";
+        ListingAdapter adapter =
+                new ListingAdapter(getActivity().getBaseContext(), listings, this, layout);
         setListAdapter(adapter);
     }
 

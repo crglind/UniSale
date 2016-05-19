@@ -4,7 +4,17 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import edu.scranton.lind.unisale.database_schema.UnisaleDbContract;
@@ -12,11 +22,9 @@ import edu.scranton.lind.unisale.database_schema.UnisaleDbContract;
 public class CompletedListingAsyncTask extends AsyncTask<Integer, Void, ArrayList<Listing>> {
 
     private WeakReference<CompletedListings> mWeakRefMain;
-    private SQLiteDatabase mDatabase;
 
-    public CompletedListingAsyncTask(CompletedListings myFrag, SQLiteDatabase database){
+    public CompletedListingAsyncTask(CompletedListings myFrag){
         this.mWeakRefMain = new WeakReference<CompletedListings>(myFrag);
-        mDatabase = database;
     }
 
     @Override
@@ -36,7 +44,9 @@ public class CompletedListingAsyncTask extends AsyncTask<Integer, Void, ArrayLis
     }
 
     private ArrayList<Listing> getAllMyListings(int uID){
-        String[] desiredColumns = {UnisaleDbContract.Listings.USER_ID, UnisaleDbContract.Listings.LIST_NUM, UnisaleDbContract.Listings.TITLE, UnisaleDbContract.Listings.DESCRIPTION,
+        JSONArray jsonListings = loadListings(uID);
+        ArrayList<Listing> compListings = new ArrayList<>();
+        /*String[] desiredColumns = {UnisaleDbContract.Listings.USER_ID, UnisaleDbContract.Listings.LIST_NUM, UnisaleDbContract.Listings.TITLE, UnisaleDbContract.Listings.DESCRIPTION,
                 UnisaleDbContract.Listings.PRICE, UnisaleDbContract.Listings.CATEGORY, UnisaleDbContract.Listings.CONDITION, UnisaleDbContract.Listings.FINISHED,
                 UnisaleDbContract.Listings.SCHOOL};
         String selection = UnisaleDbContract.Listings.USER_ID + " = ?"+ " AND " +
@@ -56,9 +66,46 @@ public class CompletedListingAsyncTask extends AsyncTask<Integer, Void, ArrayLis
             myListing.setCategory(lCursor.getString(6));
             cListings.add(myListing);
         }
-        lCursor.close();
-        return cListings;
+        lCursor.close();*/
+        try{
+            for(int i=0; i<jsonListings.length(); i++){
+                JSONObject obj = jsonListings.getJSONObject(i);
+                Listing newListing = new Listing();
+                newListing.setUID(obj.getInt("userID"));
+                newListing.setListNum(obj.getInt("listNum"));
+                newListing.setListTitle(obj.getString("title"));
+                newListing.setDescription(obj.getString("description"));
+                newListing.setPrice(obj.getDouble("price"));
+                newListing.setCategory(obj.getString("category"));
+                newListing.setCondition(obj.getString("condition"));
+                newListing.setFinished(obj.getInt("finished"));
+                newListing.setSchoolID(obj.getInt("schoolID"));
+                compListings.add(newListing);
+            }
+        }catch (JSONException e){
+            return null;
+        }
+        return compListings;
+    }
 
+    private JSONArray loadListings(int uID){
+        JSONArray jsonArray = null;
+        try {
+            URL url = new URL
+                    ("http://www.cs.scranton.edu/~lindc4/UniSale/unisale.php/finished/" + uID);
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            conn.connect();
+            InputStream is = conn.getInputStream();
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            StringBuilder responseStringBuilder = new StringBuilder();
+            String inputString;
+            while((inputString = streamReader.readLine()) != null)
+                responseStringBuilder.append(inputString).append("\n");
+            jsonArray = new JSONArray(responseStringBuilder.toString());
+        }catch (IOException | JSONException e){
+            jsonArray = null;
+        }
+        return jsonArray;
     }
 
 }

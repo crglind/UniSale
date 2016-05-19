@@ -1,8 +1,9 @@
 package edu.scranton.lind.unisale;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,8 +11,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import edu.scranton.lind.unisale.database_schema.UnisaleDbOpenHelper;
-import edu.scranton.lind.unisale.database_schema.UnisaleDbContract.User;
 
 
 public class UniSale_main extends AppCompatActivity {
@@ -20,10 +19,9 @@ public class UniSale_main extends AppCompatActivity {
             "edu.scranton.lind.unisale.unisalemain.ARG_USER_ID";
     public static final String ARG_SCHOOL_ID =
             "edu.scranton.lind.unisale.unisalemain.ARG_SCHOOL_ID";
+    public static final String ARG_USERNAME = "edu.scranton.lind.unisale.unisalemain.ARG_USERNAME";
 
-    private SQLiteDatabase mReadableDb;
-    private int mUID;
-    private int mSchoolID;
+    private String mUser;
 
     public EditText mUsername;
     public EditText mPassword;
@@ -34,21 +32,17 @@ public class UniSale_main extends AppCompatActivity {
         setContentView(R.layout.activity_uni_sale_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        UnisaleDbOpenHelper dbHelper = new UnisaleDbOpenHelper(this);
-        mReadableDb = dbHelper.getReadableDatabase();
+        if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)
+                != Configuration.SCREENLAYOUT_SIZE_LARGE) {
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
         mUsername = (EditText) findViewById(R.id.username_et);
         mPassword = (EditText) findViewById(R.id.password_et);
     }
 
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        mReadableDb = null;
-    }
-
     public void loginClicked(View view){
-        String username = mUsername.getText().toString();
-        if(username.equals("")){
+        mUser = mUsername.getText().toString();
+        if(mUser.equals("")){
             Toast.makeText(this, "Username is blank", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -57,31 +51,25 @@ public class UniSale_main extends AppCompatActivity {
             Toast.makeText(this, "Password is blank", Toast.LENGTH_SHORT).show();
             return;
         }
-        //Check username against database
-        String[] desiredColumns = {User.ID, User.USERNAME, User.PASSWORD, User.SCHOOL_ID};
-        String selection = User.USERNAME + " =? ";
-        String[] selectionArgs = {username};
-        Cursor uCursor = mReadableDb.query(User.TABLE_NAME, desiredColumns,
-                selection, selectionArgs, null, null, null);
-        uCursor.moveToFirst();
-        if(uCursor.isAfterLast()){
-            Toast.makeText(this, "Username Invalid", Toast.LENGTH_SHORT).show();
-            uCursor.close();
-            return;
+        LoginAsyncTask la = new LoginAsyncTask(this);
+        la.execute(mUser, password);
+    }
+
+    public void loginSuccessful(Integer[] ids){
+        if(ids[0].intValue() == -1){
+            Toast.makeText(UniSale_main.this, "Password Incorrect", Toast.LENGTH_SHORT).show();
         }
-        //Check password against database
-        if(!uCursor.getString(2).equals(password)){
-            Toast.makeText(this, "Password Invalid", Toast.LENGTH_SHORT).show();
-            uCursor.close();
-            return;
+        else {
+            Intent intent = new Intent(this, HomeScreen.class);
+            intent.putExtra(ARG_USER_ID_MAIN, ids[0]);
+            intent.putExtra(ARG_SCHOOL_ID, ids[1]);
+            intent.putExtra(ARG_USERNAME, mUser);
+            startActivity(intent);
         }
-        mUID = uCursor.getInt(0);
-        mSchoolID = uCursor.getInt(3);
-        uCursor.close();
-        Intent intent = new Intent(this, HomeScreen.class);
-        intent.putExtra(ARG_USER_ID_MAIN, mUID);
-        intent.putExtra(ARG_SCHOOL_ID, mSchoolID);
-        startActivity(intent);
+    }
+
+    public void loginUnsuccessful(){
+        Toast.makeText(UniSale_main.this, "Username Invalid", Toast.LENGTH_SHORT).show();
     }
 
     public void newUserClicked(View view){

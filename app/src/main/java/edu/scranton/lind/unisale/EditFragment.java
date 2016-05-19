@@ -2,7 +2,6 @@ package edu.scranton.lind.unisale;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,56 +18,49 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.NumberFormat;
-
 import edu.scranton.lind.unisale.database_schema.UnisaleDbContract.Listings;
 
 
-public class NewListing extends Fragment {
+public class EditFragment extends Fragment {
 
-    public interface DbProvider{
-        SQLiteDatabase getReadableDb();
-        SQLiteDatabase getWritableDb();
-    }
+    public interface ListingProvider{Listing getListing();}
+    public interface DbProvider{SQLiteDatabase getWritableDb();}
 
-    public static final String USER = "edu.scranton.lind.newlisting.USER";
-    public static final String SCHOOL = "edu.scranton.lind.newlisting.SCHOOl";
-
-    private Context mContext;
-    private SQLiteDatabase mReadableDatabase;
+    private DbProvider dbProvider;
+    private ListingProvider lProvider;
     private SQLiteDatabase mWritableDatabase;
-    private int mUID;
-    private int mSchool;
-    private DbProvider provider;
+    private Context mContext;
+    private Listing mListing;
     private EditText mTitle;
     private EditText mDescription;
     private Spinner mConSpinner;
     private Spinner mCatSpinner;
     private TextView mPrice;
 
-
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mUID = getArguments().getInt(USER);
-        mSchool = getArguments().getInt(SCHOOL);
+        mListing = lProvider.getListing();
+        mWritableDatabase = dbProvider.getWritableDb();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_new_listing, container, false);
-        mReadableDatabase = provider.getReadableDb();
-        mWritableDatabase = provider.getWritableDb();
+        View view = inflater.inflate(R.layout.fragment_edit, container, false);
+        NumberFormat cashFormat = NumberFormat.getCurrencyInstance();
         mPrice = (TextView)view.findViewById(R.id.new_list_price);
+        mPrice.setText(cashFormat.format(mListing.getPrice()));
         mTitle = (EditText)view.findViewById(R.id.new_list_title);
+        mTitle.setText(mListing.getListTitle());
         mDescription = (EditText)view.findViewById(R.id.new_list_description);
+        mDescription.setText(mListing.getDescription());
         if(getActivity().findViewById(R.id.small_container) != null){
             Button changePrice = (Button)view.findViewById(R.id.price_button);
             changePrice.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //GET SMALL DEVICE AND TEST AND ADAPT THIS
                     ((HomeScreen)getActivity()).changePriceClicked();
                 }
             });
@@ -81,27 +73,25 @@ public class NewListing extends Fragment {
                 R.array.conditions_array, android.R.layout.simple_spinner_item);
         conAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
         mConSpinner.setAdapter(conAdapter);
+        String[] conds = getResources().getStringArray(R.array.conditions_array);
+        mConSpinner.setSelection(indexOf(conds, mListing.getCondition()));
         mCatSpinner = (Spinner)view.findViewById(R.id.new_list_category_spinner);
         ArrayAdapter<CharSequence> catAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.category_array, android.R.layout.simple_spinner_item);
         catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
         mCatSpinner.setAdapter(catAdapter);
-        Button postButton = (Button)view.findViewById(R.id.post_listing_button);
-        postButton.setOnClickListener(new View.OnClickListener() {
+        String[] cats = getResources().getStringArray(R.array.category_array);
+        mCatSpinner.setSelection(indexOf(cats, mListing.getCategory()));
+        Button editButton = (Button)view.findViewById(R.id.edit_listing_button);
+        editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(checkFields() == true){
-                    Listing newListing = new Listing();
-                    newListing.setUID(mUID);
-                    newListing.setListTitle(mTitle.getText().toString());
-                    newListing.setDescription(mDescription.getText().toString());
-                    newListing.setPrice(Double.parseDouble
-                            (mPrice.getText().toString().replaceAll("[^\\d.]", "")));
-                    newListing.setCategory(mCatSpinner.getSelectedItem().toString());
-                    newListing.setCondition(mConSpinner.getSelectedItem().toString());
-                    newListing.setFinished(0);
-                    newListing.setSchoolID(mSchool);
-                    startAsync(newListing);
+                    startAsyncTask();
+                    /*writeToDatabase();
+                    getActivity().onBackPressed();
+                    Toast.makeText(mContext,
+                            mTitle.getText().toString() + " - EDITED!", Toast.LENGTH_SHORT).show();*/
                 }
             }
         });
@@ -119,32 +109,70 @@ public class NewListing extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = getActivity();
-        provider = (DbProvider)getActivity();
+        lProvider = (ListingProvider)getActivity();
+        dbProvider = (DbProvider)getActivity();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        provider = null;
+        lProvider = null;
+        dbProvider = null;
     }
 
-    public void success(int response){
+    public void success(){
         getActivity().onBackPressed();
-        Toast.makeText(mContext,
-                mTitle.getText().toString() + " - POSTED!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "Post Edited!", Toast.LENGTH_SHORT).show();
     }
 
-    public void failedToInsert(){
-        Toast.makeText(mContext, "Failed to Insert!", Toast.LENGTH_SHORT).show();
+    public void failureToUpdate(){
+        Toast.makeText(mContext, "Failed to Update", Toast.LENGTH_SHORT).show();
     }
 
     public void failedToConnect(){
-        Toast.makeText(mContext, "Network Error: Failed to Connect", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "Network Failure: Failed to Connect", Toast.LENGTH_SHORT).show();
     }
 
-    private void startAsync(Listing listing){
-        NewListingAsyncTask nla = new NewListingAsyncTask(this);
-        nla.execute(listing);
+    private void startAsyncTask(){
+        EditAsyncTask ea = new EditAsyncTask(this);
+        ea.execute(mListing);
+    }
+
+    private void writeToDatabase(){
+        ContentValues updateListing = new ContentValues();
+        updateListing.put(Listings.TITLE, mTitle.getText().toString());
+        updateListing.put(Listings.DESCRIPTION, mDescription.getText().toString());
+        updateListing.put(Listings.PRICE, Double.parseDouble
+                (mPrice.getText().toString().replaceAll("[^\\d.]", "")));
+        updateListing.put(Listings.CATEGORY, mCatSpinner.getSelectedItem().toString());
+        updateListing.put(Listings.CONDITION, mConSpinner.getSelectedItem().toString());
+        updateListing.put(Listings.FINISHED, 0);
+        updateListing.put(Listings.SCHOOL, mListing.getSchoolID());
+        String selectClause = Listings.USER_ID + " = " + mListing.getUID() + " AND " +
+                Listings.LIST_NUM + " = " + mListing.getListNum();
+        long id = mWritableDatabase.update(Listings.TABLE_NAME, updateListing, selectClause, null);
+    }
+
+    private boolean checkFields(){
+        if(mTitle.getText().toString().equals("")){
+            Toast.makeText(mContext, "Title is empty", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(mDescription.getText().toString().equals("")){
+            Toast.makeText(mContext, "Description is empty", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(mCatSpinner.getSelectedItem().toString().equals
+                (getResources().getString(R.string.string_choose))){
+            Toast.makeText(mContext, "Category Needed", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(mConSpinner.getSelectedItem().toString().equals
+                (getResources().getString(R.string.string_choose))){
+            Toast.makeText(mContext, "Condition Needed", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     private void assignButtons(View view){
@@ -247,25 +275,14 @@ public class NewListing extends Fragment {
         mPrice.setText(billString);
     }
 
-    private boolean checkFields(){
-        if(mTitle.getText().toString().equals("")){
-            Toast.makeText(mContext, "Title is empty", Toast.LENGTH_SHORT).show();
-            return false;
+    private int indexOf(String[] array, String string){
+        int result = -1;
+        for(int i=0; i<array.length; i++){
+            if(array[i].equals(string)){
+                result = i;
+                break;
+            }
         }
-        if(mDescription.getText().toString().equals("")){
-            Toast.makeText(mContext, "Description is empty", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if(mCatSpinner.getSelectedItem().toString().equals
-                (getResources().getString(R.string.string_choose))){
-            Toast.makeText(mContext, "Category Needed", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if(mConSpinner.getSelectedItem().toString().equals
-                (getResources().getString(R.string.string_choose))){
-            Toast.makeText(mContext, "Condition Needed", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
+        return result;
     }
 }

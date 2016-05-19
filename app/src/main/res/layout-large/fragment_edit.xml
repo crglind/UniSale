@@ -1,0 +1,242 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewListing">
+
+    <EditText
+        android:id="@+id/new_list_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter the Listing Title"
+        android:textSize="30dp"
+        android:maxLength="25"
+        android:inputType="text"
+        android:digits="@string/myAlphaNumeric"/>
+
+    <TextView
+        android:id="@+id/char_notice_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*** MAX CHARACTERS: 25 ***"
+        android:textSize="10dp"
+        android:layout_below="@+id/new_list_title"
+        android:layout_alignParentRight="true"/>
+
+    <EditText
+        android:id="@+id/new_list_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Description"
+        android:textSize="25dp"
+        android:inputType="text"
+        android:digits="@string/myAlphaNumeric"
+        android:layout_below="@+id/char_notice_title"/>
+
+    <TextView
+        android:id="@+id/char_notice_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*** MAX CHARACTERS: 100 ***"
+        android:textSize="10dp"
+        android:layout_below="@+id/new_list_description"
+        android:layout_alignParentRight="true"/>
+
+    <RelativeLayout
+        android:id="@+id/new_list_price_block"
+        android:background="@drawable/text_view_border"
+        android:layout_below="@+id/char_notice_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:id="@+id/new_list_price_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price: "
+            android:textSize="25dp" />
+
+        <TextView
+            android:id="@+id/new_list_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="$0.00"
+            android:textSize="25dp"
+            android:gravity="right"
+            android:layout_toRightOf="@+id/new_list_price_tv" />
+
+        <!-- Number Block -->
+        <RelativeLayout
+            android:id="@+id/number_button_block"
+            android:background="@drawable/text_view_border"
+            android:layout_below="@+id/new_list_price_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_centerInParent="true">
+
+            <Button
+                android:id="@+id/button_one"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="1"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"/>
+
+            <Button
+                android:id="@+id/button_two"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="2"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_toRightOf="@id/button_one"/>
+
+            <Button
+                android:id="@+id/button_three"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="3"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_toRightOf="@+id/button_two"/>
+
+            <Button
+                android:id="@+id/button_four"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="4"
+                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_below="@+id/button_one"/>
+
+            <Button
+                android:id="@+id/button_five"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="5"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_toRightOf="@+id/button_four"
+                android:layout_below="@+id/button_one"/>
+
+            <Button
+                android:id="@+id/button_six"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="6"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_toRightOf="@+id/button_two"
+                android:layout_below="@+id/button_one"/>
+
+            <Button
+                android:id="@+id/button_seven"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="7"
+                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_below="@+id/button_four"/>
+
+            <Button
+                android:id="@+id/button_eight"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="8"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_toRightOf="@+id/button_seven"
+                android:layout_below="@+id/button_four"/>
+
+            <Button
+                android:id="@+id/button_nine"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="9"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_toRightOf="@+id/button_eight"
+                android:layout_below="@+id/button_four"/>
+
+            <Button
+                android:id="@+id/button_zero"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:text="0"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_below="@+id/button_eight"
+                android:layout_centerInParent="true"/>
+
+            <Button
+                android:id="@+id/price_back_button"
+                style="@style/ButtonStyle"
+                android:layout_width="wrap_content"
+                android:drawableEnd="@drawable/right_arrow_icon"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_below="@id/button_eight"
+                android:layout_toRightOf="@id/button_zero"/>
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <TableRow
+        android:id="@+id/new_list_condition_row"
+        android:layout_below="@+id/new_list_price_block"
+        android:background="@drawable/text_view_border"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:id="@+id/new_list_condition_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Condition:"
+            android:textSize="25dp"/>
+
+        <Spinner
+            android:id="@+id/new_list_condition_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center" />
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/new_list_category_row"
+        android:layout_below="@+id/new_list_condition_row"
+        android:background="@drawable/text_view_border"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:id="@+id/new_list_category_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Category:"
+            android:textSize="25dp" />
+
+        <Spinner
+            android:id="@+id/new_list_category_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_toRightOf="@+id/new_list_category_tv"/>
+    </TableRow>
+
+
+    <Button
+        android:id="@+id/edit_listing_button"
+        style="@style/ButtonStyle"
+        android:layout_alignParentBottom="true"
+        android:text="EDIT LISTING"
+        android:layout_marginBottom="10dp"/>
+</RelativeLayout>
