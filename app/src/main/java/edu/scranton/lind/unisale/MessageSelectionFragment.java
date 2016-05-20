@@ -10,7 +10,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,28 +20,22 @@ import java.util.List;
 
 public class MessageSelectionFragment extends ListFragment {
 
-    private String[] users = {"User1", "User2"};
-    private String[] date = {"4/11/2016", "4/10/2016"};
-    private String[] exTitleArray;
+    public static final String ARG_ID = "edu.scranton.lindc4.msgselect.ID";
+
+    public interface OnMessageSelected{void onMessageSelected(Integer[] info, String otherUsername);}
+
+    private int mUID;
+    private ArrayList<Integer[]> mInfo;
+    private ArrayList<String> mUsernames;
+    private OnMessageSelected mListener;
 
     @Override
     public void onActivityCreated(Bundle bundle){
         super.onActivityCreated(bundle);
         setHasOptionsMenu(true);
-        exTitleArray = getResources().getStringArray(R.array.example_titles);
-        List<HashMap<String, String>> exMsgList = new ArrayList<>();
-        for (int i=0; i<2; i++){
-            HashMap<String, String> hm = new HashMap<>();
-            hm.put("user", users[i]);
-            hm.put("item", " - " + exTitleArray[i]);
-            hm.put("date", date[i]);
-            exMsgList.add(hm);
-        }
-        String[] from = {"user", "item", "date"};
-        int[] to = {R.id.message_sel_user, R.id.message_sel_item, R.id.message_sel_date};
-        SimpleAdapter adapter = new SimpleAdapter(
-                getActivity().getBaseContext(), exMsgList, R.layout.message_selection_rows, from, to);
-        setListAdapter(adapter);
+        mUID = getArguments().getInt(ARG_ID);
+        MessageSelectionAsyncTask msa = new MessageSelectionAsyncTask(this);
+        msa.execute(mUID);
     }
 
     @Override
@@ -53,5 +49,56 @@ public class MessageSelectionFragment extends ListFragment {
         //menu.findItem(R.id.search_icon).setVisible(false);
         menu.findItem(R.id.filter_icon).setVisible(false);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    public void noMessages(){
+        Toast.makeText(getContext(), "No Messages!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void makeList(ArrayList<Integer[]> info){
+        mInfo = info;
+        ArrayList<Integer> otherUser = new ArrayList<>();
+        for(int i=0; i<info.size(); i++){
+            Integer[] lineInfo = info.get(i);
+            otherUser.add(lineInfo[0]);
+        }
+        FindUsersAsyncTask fa = new FindUsersAsyncTask(this);
+        fa.execute(otherUser);
+    }
+
+    public void getListings(ArrayList<String> usernames){
+        mUsernames = usernames;
+        ArrayList<Integer[]> listingKey = new ArrayList<>();
+        for(int i=0; i<mInfo.size(); i++){
+            Integer[] lineInfo = mInfo.get(i);
+            Integer[] keys = new Integer[2];
+            keys[0] = lineInfo[1];
+            keys[1] = lineInfo[2];
+            listingKey.add(keys);
+        }
+        FindListingsAsyncTask fla = new FindListingsAsyncTask(this);
+        fla.execute(listingKey);
+    }
+
+    public void setup(ArrayList<String> titles){
+        ArrayList<MessageRow> fields = new ArrayList<>();
+        for(int i=0; i<mUsernames.size(); i++){
+            MessageRow row = new MessageRow();
+            row.setUsername(mUsernames.get(i));
+            row.setTitle(titles.get(i));
+            fields.add(row);
+        }
+        MessageSelectionAdapter adapter = new MessageSelectionAdapter(getContext(), fields);
+        setListAdapter(adapter);
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        try {
+            mListener = (OnMessageSelected) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getActivity().toString());
+        }
+        mListener.onMessageSelected(mInfo.get(position), mUsernames.get(position));
     }
 }

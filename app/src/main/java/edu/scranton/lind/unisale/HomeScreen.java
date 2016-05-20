@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import java.util.Stack;
 
+import edu.scranton.lind.unisale.database_schema.UnisaleDbContract;
 import edu.scranton.lind.unisale.database_schema.UnisaleDbOpenHelper;
 
 public class HomeScreen extends AppCompatActivity
@@ -29,7 +30,8 @@ public class HomeScreen extends AppCompatActivity
     CompletedListings.DbProvider,
     EditFragment.DbProvider,
     EditFragment.ListingProvider,
-    ChangePriceFragment.ListingProvider{
+    ChangePriceFragment.ListingProvider,
+    MessageSelectionFragment.OnMessageSelected {
 
     private int mUID;
     private int mSchoolID;
@@ -126,14 +128,16 @@ public class HomeScreen extends AppCompatActivity
                 getSupportActionBar().setTitle(mMessageTitle);
                 mCurrentTitle = mMessageTitle;
                 mRetainedTitles.setCurrentTitle(mCurrentTitle);
+                MessageSelectionFragment msgSelect = new MessageSelectionFragment();
+                Bundle args = new Bundle();
+                args.putInt(MessageSelectionFragment.ARG_ID, mUID);
+                msgSelect.setArguments(args);
                 if(findViewById(R.id.small_container) != null){
-                    MessageSelectionFragment msgSelect = new MessageSelectionFragment();
                     ft.replace(R.id.small_container, msgSelect, mMessageSelectTag);
                     ft.addToBackStack(mMessageSelectTag);
                     ft.commit();
                 }
                 else{
-                    MessageSelectionFragment msgSelect = new MessageSelectionFragment();
                     ft.replace(R.id.large_container_normal, msgSelect, mMessageSelectTag);
                     ft.addToBackStack(mMessageSelectTag);
                     ft.commit();
@@ -236,6 +240,35 @@ public class HomeScreen extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onMessageSelected(Integer[] info, String otherUsername){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ConversationFragment conv = new ConversationFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(ConversationFragment.ARG_USER, info[0].intValue());
+        bundle.putInt(ConversationFragment.ARG_OWNER, info[1].intValue());
+        bundle.putInt(ConversationFragment.ARG_LIST, info[2].intValue());
+        bundle.putString(ConversationFragment.ARG_NAME, otherUsername);
+        bundle.putString(ConversationFragment.ARG_MY_NAME, mUsername);
+        bundle.putInt(ConversationFragment.ARG_MY_ID, mUID);
+        conv.setArguments(bundle);
+        mTitleList.push(mCurrentTitle);
+        mRetainedTitles.setTitlesStack(mTitleList);
+        getSupportActionBar().setTitle(mMessageTitle);
+        mCurrentTitle = mMessageTitle;
+        mRetainedTitles.setCurrentTitle(mCurrentTitle);
+        if(findViewById(R.id.small_container) != null){
+            ft.replace(R.id.small_container, conv, mMessageSelectTag);
+            ft.addToBackStack(mMessageSelectTag);
+            ft.commit();
+        }
+        else{
+            ft.replace(R.id.large_container_normal, conv, mMessageSelectTag);
+            ft.addToBackStack(mMessageSelectTag);
+            ft.commit();
+        }
     }
 
     @Override

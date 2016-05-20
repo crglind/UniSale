@@ -28,9 +28,6 @@ public class CompletedListingAsyncTask extends AsyncTask<Integer, Void, ArrayLis
     }
 
     @Override
-    protected void onPreExecute(){super.onPreExecute();}
-
-    @Override
     protected ArrayList<Listing> doInBackground(Integer... uID){
         return getAllMyListings(uID[0]);
     }
